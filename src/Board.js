@@ -29,10 +29,14 @@
       this.trigger('change');
     },
 
+	//position of start of major diagonal (top and left)
+	//if this is 0 you are at top left corner. if it is positive you are on top row. if it is negative you are on far left column
     _getFirstRowColumnIndexForMajorDiagonalOn: function(rowIndex, colIndex) {
       return colIndex - rowIndex;
     },
 
+	//position of start of minor diagonal (top and right)
+	//if this is n(or n - 1 based on definition of indices) you are at top right corner. if it is > n (n-1) you are on far right column. if it is less you are on top row	
     _getFirstRowColumnIndexForMinorDiagonalOn: function(rowIndex, colIndex) {
       return colIndex + rowIndex;
     },
@@ -79,12 +83,26 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+	  var counter = 0;
+	  for(var i = 0; i < this.get('n'); i++){
+	    if(this.get(rowIndex)[i] === 1){
+		  counter++;
+		  if(counter > 1){
+		    return true;
+		  }
+		}
+	  }
+      return false;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      for(var i = 0; i < this.get('n'); i++){
+	    if(this.hasRowConflictAt(i)){
+		  return true;
+		}  
+	  }
+	  return false;
     },
 
 
