@@ -159,7 +159,19 @@ window.countNQueensBitShift = function(n) {
     return 1;
   }
   var placeQueen = function(row, left, right, column){
-    var endLoop = row === 0 ? Math.floor(n/2) : n;
+    var endLoop = row === 0 ? (((Math.pow(2, n) - 1) << Math.floor(n/2)) % Math.pow(2, n)) : 0;
+    var possibleMoves = Math.pow(2, n)-1-(left|right|column);
+    while (possibleMoves > endLoop){
+      if (row === n - 1){
+        solutionCount++;
+        return;
+      } else {
+        var current = possibleMoves & -possibleMoves;
+        placeQueen(row + 1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
+        possibleMoves -= current;
+      }
+    }
+    /*
     var possibleMoves = (left | right | column | Math.pow(2, n)).toString(2);
     for (var i = 1; i < endLoop + 1; i++){
       if (possibleMoves[n+1-i] === '0'){
@@ -167,13 +179,11 @@ window.countNQueensBitShift = function(n) {
           solutionCount++;
         } else {
           var current = Math.pow(2, i-1);
-          var newColumn = current | column;
-          var newLeft = ((current | left) << 1) % Math.pow(2, n);
-          var newRight = (current | right) >> 1;
-          placeQueen(row+1, newLeft, newRight, newColumn);
+          placeQueen(row+1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
         }
       }
     }
+    */
   }
   placeQueen(0, 0, 0, 0);
   solutionCount*=2;
