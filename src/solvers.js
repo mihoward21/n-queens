@@ -120,40 +120,77 @@ window.countNQueensSolutions = function(n) {
     console.log('Number of solutions for ' + n + ' queens:', 1);
     return 1;
   }
-  var placeQueen = function(row, board, usedCols, usedMjDg, usedMnDg){
-    var boardArray = board.rows();
+  var placeQueen = function(row, usedCols, usedMjDg, usedMnDg){
     //loop through columns on board
     //end for loop at n/2 for row = 0
-    var endLoop = row === 0 ? Math.floor(boardArray.length / 2) : boardArray.length;
+    var endLoop = row === 0 ? Math.floor(n/2) : n;
     for(var c = 0; c < endLoop; c++){
       if(usedCols.indexOf(c) === -1 && usedMjDg.indexOf(c-row) === -1 && usedMnDg.indexOf(c+row) === -1){
-          //place rook in current row at c column
-		  board.togglePiece(row,c);
-		  //check if board is complete, if so increment solutionCount
-          if(row === boardArray.length-1){
-            solutionCount++;
-          } else{
-            //else call recursive function
-            newUsedCols = usedCols.slice(0);
-            newUsedCols.push(c);
-            newUsedMjDg = usedMjDg.slice(0);
-            newUsedMjDg.push(c-row);
-            newUsedMnDg = usedMnDg.slice(0);
-            newUsedMnDg.push(c+row);
-            placeQueen(row+1, board, newUsedCols, newUsedMjDg, newUsedMnDg);
-          }
-		  board.togglePiece(row,c);
+        //check if board is complete, if so increment solutionCount
+        if(row === n-1){
+          solutionCount++;
+        } else{
+          //else call recursive function
+          //push current col into usedCols
+          var newUsedCols = usedCols.slice(0);
+          newUsedCols.push(c);
+          var newUsedMjDg = usedMjDg.slice(0);
+          newUsedMjDg.push(c-row);
+          var newUsedMnDg = usedMnDg.slice(0);
+          newUsedMnDg.push(c+row);
+          placeQueen(row+1, newUsedCols, newUsedMjDg, newUsedMnDg);
+        }
       }
     }
   };
-  var board = new Board({n: n});
-  placeQueen(0, board, [], [], []);
+  placeQueen(0, [], [], []);
   solutionCount*=2;
   if (n%2 === 1){
-    board = new Board({n: n});
-    board.togglePiece(0, Math.floor(n/2));
-    placeQueen(1, board, [Math.floor(n/2)], [Math.floor(n/2)], [Math.floor(n/2)]);
+    placeQueen(1, [Math.floor(n/2)], [Math.floor(n/2)], [Math.floor(n/2)]);
   }
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
+
+window.countNQueensBitShift = function(n) {
+  var solutionCount = 0;
+  if (n === 0 || n === 1) {
+    console.log('Number of solutions for ' + n + ' queens:', 1);
+    return 1;
+  }
+  var placeQueen = function(row, left, right, column){
+    var endLoop = row === 0 ? (((Math.pow(2, n) - 1) << Math.floor(n/2)) % Math.pow(2, n)) : 0;
+    var possibleMoves = Math.pow(2, n)-1-(left|right|column);
+    while (possibleMoves > endLoop){
+      if (row === n - 1){
+        solutionCount++;
+        return;
+      } else {
+        var current = possibleMoves & -possibleMoves;
+        placeQueen(row + 1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
+        possibleMoves -= current;
+      }
+    }
+    /*
+    var possibleMoves = (left | right | column | Math.pow(2, n)).toString(2);
+    for (var i = 1; i < endLoop + 1; i++){
+      if (possibleMoves[n+1-i] === '0'){
+        if (row === n-1){
+          solutionCount++;
+        } else {
+          var current = Math.pow(2, i-1);
+          placeQueen(row+1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
+        }
+      }
+    }
+    */
+  }
+  placeQueen(0, 0, 0, 0);
+  solutionCount*=2;
+  if (n%2 === 1){
+    var current = Math.pow(2, Math.floor(n/2));
+    placeQueen(1, current << 1, current >> 1, current);
+  }
+  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  return solutionCount;
+}
