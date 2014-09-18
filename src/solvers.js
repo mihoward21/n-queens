@@ -115,7 +115,7 @@ window.findNQueensSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = 0; //fixme
+  var newUsedCols, newUsedMjDg, newUsedMnDG, solutionCount = 0;
   if (n === 0 || n === 1) {
     console.log('Number of solutions for ' + n + ' queens:', 1);
     return 1;
@@ -127,27 +127,22 @@ window.countNQueensSolutions = function(n) {
     var endLoop = row === 0 ? Math.floor(boardArray.length / 2) : boardArray.length;
     for(var c = 0; c < endLoop; c++){
       if(usedCols.indexOf(c) === -1 && usedMjDg.indexOf(c-row) === -1 && usedMnDg.indexOf(c+row) === -1){
-        //place rook in current row at i column
-        board.togglePiece(row,c);
-        //check if board is still valid
-        if(!board.hasAnyQueensConflicts()){
-          //check if board is complete, if so increment solutionCount
+          //place rook in current row at c column
+		  board.togglePiece(row,c);
+		  //check if board is complete, if so increment solutionCount
           if(row === boardArray.length-1){
             solutionCount++;
           } else{
             //else call recursive function
-            //push current col into usedCols
-            var newUsedCols = usedCols.slice(0);
+            newUsedCols = usedCols.slice(0);
             newUsedCols.push(c);
-            var newUsedMjDg = usedMjDg.slice(0);
+            newUsedMjDg = usedMjDg.slice(0);
             newUsedMjDg.push(c-row);
-            var newUsedMnDg = usedMnDg.slice(0);
+            newUsedMnDg = usedMnDg.slice(0);
             newUsedMnDg.push(c+row);
             placeQueen(row+1, board, newUsedCols, newUsedMjDg, newUsedMnDg);
           }
-        }
-        //remove rook from that spot
-        board.togglePiece(row,c);
+		  board.togglePiece(row,c);
       }
     }
   };
