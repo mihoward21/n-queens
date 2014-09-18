@@ -116,13 +116,16 @@ window.findNQueensSolution = function(n) {
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
   var solutionCount = 0; //fixme
-  if (n === 0) {
+  if (n === 0 || n === 1) {
+    console.log('Number of solutions for ' + n + ' queens:', 1);
     return 1;
   }
   var placeQueen = function(row, board, usedCols, usedMjDg, usedMnDg){
     var boardArray = board.rows();
     //loop through columns on board
-    for(var c = 0; c < boardArray.length; c++){
+    //end for loop at n/2 for row = 0
+    var endLoop = row === 0 ? Math.floor(boardArray.length / 2) : boardArray.length;
+    for(var c = 0; c < endLoop; c++){
       if(usedCols.indexOf(c) === -1 && usedMjDg.indexOf(c-row) === -1 && usedMnDg.indexOf(c+row) === -1){
         //place rook in current row at i column
         board.togglePiece(row,c);
@@ -150,7 +153,12 @@ window.countNQueensSolutions = function(n) {
   };
   var board = new Board({n: n});
   placeQueen(0, board, [], [], []);
-
+  solutionCount*=2;
+  if (n%2 === 1){
+    board = new Board({n: n});
+    board.togglePiece(0, Math.floor(n/2));
+    placeQueen(1, board, [Math.floor(n/2)], [Math.floor(n/2)], [Math.floor(n/2)]);
+  }
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
