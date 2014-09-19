@@ -159,15 +159,15 @@ window.countNQueensBitShift = function(n) {
     return 1;
   }
   var placeQueen = function(row, left, right, column){
-    var endLoop = row === 0 ? (((Math.pow(2, n) - 1) << Math.floor(n/2)) % Math.pow(2, n)) : 0;
-    var possibleMoves = Math.pow(2, n)-1-(left|right|column);
+    var endLoop = row === 0 ? ((((1 << n) - 1) << (n >> 1)) & ((1 << n) - 1)) : 0;
+    var possibleMoves = (1 << n) - 1 - (left|right|column);
     while (possibleMoves > endLoop){
       if (row === n - 1){
         solutionCount++;
         return;
       } else {
         var current = possibleMoves & -possibleMoves;
-        placeQueen(row + 1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
+        placeQueen(row + 1, ((current | left) << 1) & ((1 << n) - 1), (current | right) >> 1, current | column);
         possibleMoves -= current;
       }
     }
@@ -186,11 +186,19 @@ window.countNQueensBitShift = function(n) {
     */
   }
   placeQueen(0, 0, 0, 0);
-  solutionCount*=2;
+  solutionCount = solutionCount << 1;
   if (n%2 === 1){
-    var current = Math.pow(2, Math.floor(n/2));
+    var current = 1 << (n >> 1);
     placeQueen(1, current << 1, current >> 1, current);
   }
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
+}
+
+var timeIt = function(func){
+  return function(){
+    var curr = Date.now();
+    func.apply(this,arguments);
+    return Date.now()-curr;
+  };
 }
