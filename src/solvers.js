@@ -130,8 +130,7 @@ window.countNQueensSolutions = function(n) {
         if(row === n-1){
           solutionCount++;
         } else{
-          //else call recursive function
-          //push current col into usedCols
+          //else call recursive function, update used cols/diags
           var newUsedCols = usedCols.slice(0);
           newUsedCols.push(c);
           var newUsedMjDg = usedMjDg.slice(0);
@@ -159,35 +158,29 @@ window.countNQueensBitShift = function(n) {
     return 1;
   }
   var placeQueen = function(row, left, right, column){
+    //if we're on row 0, stop the loop at the midway point otherwise go through the whole row.
     var endLoop = row === 0 ? ((((1 << n) - 1) << (n >> 1)) & ((1 << n) - 1)) : 0;
+	//get the binary number of possible spots for this row
     var possibleMoves = (1 << n) - 1 - (left|right|column);
+	var current;
     while (possibleMoves > endLoop){
+	  //if we're on the last row increment the counter and exit the current function call
       if (row === n - 1){
         solutionCount++;
         return;
       } else {
-        var current = possibleMoves & -possibleMoves;
+	    //find the next 1 in the binary number of possible spots, call the recursion function updating each argument, then remove that used 1 from the possible spots
+        current = possibleMoves & -possibleMoves;
         placeQueen(row + 1, ((current | left) << 1) & ((1 << n) - 1), (current | right) >> 1, current | column);
         possibleMoves -= current;
       }
     }
-    /*
-    var possibleMoves = (left | right | column | Math.pow(2, n)).toString(2);
-    for (var i = 1; i < endLoop + 1; i++){
-      if (possibleMoves[n+1-i] === '0'){
-        if (row === n-1){
-          solutionCount++;
-        } else {
-          var current = Math.pow(2, i-1);
-          placeQueen(row+1, ((current | left) << 1) % Math.pow(2, n), (current | right) >> 1, current | column);
-        }
-      }
-    }
-    */
   }
   placeQueen(0, 0, 0, 0);
+  //double the counter
   solutionCount = solutionCount << 1;
-  if (n%2 === 1){
+  //if n is odd calculate the possible solutions putting the first queen in the middle column
+  if (n & 1 === 1){
     var current = 1 << (n >> 1);
     placeQueen(1, current << 1, current >> 1, current);
   }
